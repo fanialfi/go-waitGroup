@@ -7,6 +7,7 @@ import (
 
 var nilai = 0
 var mu sync.Mutex
+var wg sync.WaitGroup
 
 // tanpa menggunakan sync.WaitGroup
 func incrementWithoutWaitGroup(mu *sync.Mutex) {
@@ -17,10 +18,29 @@ func incrementWithoutWaitGroup(mu *sync.Mutex) {
 	mu.Unlock()
 }
 
+// func main() {
+// 	for i := 0; i < 1000; i++ {
+// 		go incrementWithoutWaitGroup(&mu)
+// 	}
+
+// 	fmt.Println(nilai)
+// }
+
+func incrementWithWaitGroup(wg *sync.WaitGroup, mu *sync.Mutex) {
+	defer wg.Done()
+
+	mu.Lock()
+	nilai++
+	mu.Unlock()
+}
+
 func main() {
+
 	for i := 0; i < 1000; i++ {
-		go incrementWithoutWaitGroup(&mu)
+		wg.Add(1)
+		go incrementWithWaitGroup(&wg, &mu)
 	}
 
+	wg.Wait()
 	fmt.Println(nilai)
 }
