@@ -6,10 +6,14 @@ import (
 )
 
 var value = 0
+var mutex sync.Mutex
 
-func incrementWithWaitGroup(wg *sync.WaitGroup) {
+func incrementWithWaitGroup(wg *sync.WaitGroup, mu *sync.Mutex) {
 	defer wg.Done()
+
+	mu.Lock()
 	value++
+	mu.Unlock()
 }
 
 func main() {
@@ -17,7 +21,7 @@ func main() {
 
 	for i := 0; i < 1000; i++ {
 		wg.Add(1)
-		go incrementWithWaitGroup(&wg)
+		go incrementWithWaitGroup(&wg, &mutex)
 	}
 
 	wg.Wait()
